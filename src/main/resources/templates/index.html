@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Personal Finance Tracker</title>
+<link rel="stylesheet" th:href="@{/css/style.css}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script
+	src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+	<header>
+		<h1>Personal Finance Tracker</h1>
+		<nav>
+			<ul>
+				<li><a href="#" id="dashboard-link">Dashboard</a></li>
+				<li><a href="#" id="transactions-link">Transactions</a></li>
+				<li><a href="#" id="reports-link">Reports</a></li>
+				<li><a href="#" id="budget-link">Budget</a></li>
+				<li><a href="#" id="settings-link">Settings</a></li>
+				<li><a href="#" id="logout-link" class="hidden">Logout</a></li>
+				<li><a href="#" id="login-nav-link">Login</a></li>
+			</ul>
+		</nav>
+	</header>
+
+	<main class="container" id="main-content-area">
+		<section id="dashboard-view" class="view hidden">
+			<h2>Dashboard</h2>
+			<div id="transactions-summary">
+				<h2>Financial Summary</h2>
+				<div id="summary-totals">
+					<div>
+						<span>Total Income:</span> <span id="db-total-income">₹0.00</span>
+					</div>
+					<div>
+						<span>Total Expense:</span> <span id="db-total-expense">₹0.00</span>
+					</div>
+					<div>
+						<span>Current Balance:</span> <span id="db-current-balance">₹0.00</span>
+					</div>
+				</div>
+			</div>
+			<div id="dashboard-chart-container" class="chart-container">
+				<h2>Expense Overview</h2>
+				<canvas id="expense-pie-chart" class="chart-canvas"></canvas>
+			</div>
+		</section>
+
+		<section id="transactions-view" class="view hidden">
+			<h2>Transactions</h2>
+			<form id="transaction-form">
+				<h2>Add/Edit Transaction</h2>
+				<input type="hidden" id="transaction-id">
+				<div class="form-group">
+					<label for="type">Type:</label> <select id="type" name="type">
+						<option value="expense">Expense</option>
+						<option value="income">Income</option>
+					</select>
+				</div>
+				<div class="form-group">
+					<label for="category">Category:</label> <select id="category"
+						name="category"></select>
+				</div>
+				<div class="form-group">
+					<label for="date">Date:</label> <input type="date" id="date"
+						name="date" required>
+				</div>
+				<div class="form-group">
+					<label for="amount">Amount (₹):</label> <input type="number"
+						id="amount" name="amount" step="0.01" required>
+				</div>
+				<button type="submit" class="btn btn-primary">Add
+					Transaction</button>
+			</form>
+
+			<div id="filter-options">
+				<div class="form-group">
+					<label for="filter-category">Category:</label> <select
+						id="filter-category">
+						<option value="">All</option>
+					</select>
+				</div>
+				<div class="form-group">
+					<label for="filter-type">Type:</label> <select id="filter-type">
+						<option value="">All</option>
+						<option value="expense">Expense</option>
+						<option value="income">Income</option>
+					</select>
+				</div>
+				<div class="form-group">
+					<label for="sort-date">Sort by Date:</label> <select id="sort-date">
+						<option value="desc">Newest to Oldest</option>
+						<option value="asc">Oldest to Newest</option>
+					</select>
+				</div>
+				<button id="export-csv" class="btn btn-secondary">Export to
+					CSV</button>
+				<button id="export-pdf" class="btn btn-secondary">Export to
+					PDF</button>
+			</div>
+
+			<div id="transaction-list-container">
+				<h2>Transaction History</h2>
+				<ul id="transaction-list"></ul>
+			</div>
+		</section>
+
+		<section id="reports-view" class="view hidden">
+			<h2>Reports</h2>
+			<div id="reports-summary-chart-container" class="chart-container">
+				<h2>Transaction Summary (Income, Expense, Balance)</h2>
+				<canvas id="summary-bar-chart" class="chart-canvas"></canvas>
+			</div>
+			<div id="reports-expense-chart-container" class="chart-container"
+				style="margin-top: 30px;">
+				<h2>Expense Breakdown by Category</h2>
+				<canvas id="expense-pie-chart-reports" class="chart-canvas"></canvas>
+			</div>
+		</section>
+
+		<section id="budget-view" class="view hidden">
+			<h2>Budget Planning</h2>
+			<p>This feature is under development. You will be able to set
+				monthly budget goals here.</p>
+		</section>
+
+		<section id="settings-view" class="view hidden">
+			<h2>Settings</h2>
+			<div class="form-group">
+				<button id="toggle-dark-mode" class="btn btn-secondary">Toggle
+					Dark Mode</button>
+			</div>
+			<div class="form-group" style="margin-top: 20px;">
+				<h3>Manage Categories</h3>
+				<input type="text" id="new-category-name"
+					placeholder="New category name" style="margin-bottom: 10px;">
+				<button id="add-category-btn" class="btn btn-primary">Add
+					Category</button>
+				<ul id="category-list-settings"
+					style="list-style: none; padding: 0; margin-top: 10px;"></ul>
+			</div>
+		</section>
+
+		<section id="login-view" class="view auth-container hidden">
+			<form id="login-form" class="auth-form-class">
+				<h2>Login</h2>
+				<div class="form-group">
+					<label for="login-email">Email:</label> <input type="email"
+						id="login-email" name="email" required autocomplete="username">
+				</div>
+				<div class="form-group">
+					<label for="login-password">Password:</label> <input
+						type="password" id="login-password" name="password" required
+						autocomplete="current-password">
+				</div>
+				<button type="submit" class="btn btn-primary">Login</button>
+				<p>
+					Don't have an account? <a href="#" id="show-register-link">Register</a>
+				</p>
+				<div id="login-message" class="message" style="display: none;"></div>
+			</form>
+		</section>
+
+		<section id="register-view" class="view auth-container hidden">
+			<form id="register-form" class="auth-form-class">
+				<h2>Register</h2>
+				<div class="form-group">
+					<label for="register-name">Name:</label> <input type="text"
+						id="register-name" name="name" required>
+				</div>
+				<div class="form-group">
+					<label for="register-email">Email:</label> <input type="email"
+						id="register-email" name="email" required>
+				</div>
+				<div class="form-group">
+					<label for="register-password">Password:</label> <input
+						type="password" id="register-password" name="password" required
+						minlength="6">
+				</div>
+				<button type="submit" class="btn btn-primary">Register</button>
+				<p>
+					Already have an account? <a href="#" id="show-login-link">Login</a>
+				</p>
+				<div id="register-message" class="message" style="display: none;"></div>
+			</form>
+		</section>
+	</main>
+
+	<script th:src="@{/js/app.js}"></script>
+</body>
+</html>
